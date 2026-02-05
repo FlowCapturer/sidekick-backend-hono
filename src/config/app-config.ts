@@ -1,4 +1,4 @@
-import { AppInfo } from "./types";
+import { AppInfo } from "../types";
 
 export const APP_INFO_ACCOUNT_TYPE = {
   TEAM: "team",

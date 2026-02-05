@@ -1,6 +1,6 @@
 import { Context } from "hono";
-import { appInfo } from "../../app-config.js";
-import { getSingletonCacheInstance } from "../../local-cache.js";
+import { appInfo } from "../../config/app-config.js";
+import { getSingletonCacheInstance } from "../../utils/local-cache.js";
 import { IHonoAppBinding } from "../../types.js";
 import { isCustomError, isValidId } from "../../utils/common-utils.js";
 import { INVITATION_ENUMS, ROLES } from "../../utils/enums.js";

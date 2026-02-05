@@ -1,5 +1,5 @@
 import { Context } from "hono";
-import { appInfo } from "../../app-config.js";
+import { appInfo } from "../../config/app-config.js";
 import { IHonoAppBinding } from "../../types.js";
 import { getRequestFromRoute, isValidId } from "../../utils/common-utils.js";
 import { ROLES } from "../../utils/enums.js";

@@ -1,6 +1,6 @@
 import { Context, Hono } from "hono";
 
-import { getSingletonCacheInstance } from "../../local-cache.js";
+import { getSingletonCacheInstance } from "../../utils/local-cache.js";
 import { isValidId } from "../../utils/common-utils.js";
 import logger from "../../utils/error-logger.js";
 import {

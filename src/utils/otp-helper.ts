@@ -1,6 +1,5 @@
-import { appInfo } from "../app-config.js";
-import { getSingletonCacheInstance } from "../local-cache.js";
-import { OTPCache } from "./type.js";
+import { appInfo } from "../config/app-config.js";
+import { getSingletonCacheInstance } from "./local-cache.js";
 
 export const otpTemplate = (otp: string) => {
   return `

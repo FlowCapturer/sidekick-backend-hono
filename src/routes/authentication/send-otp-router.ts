@@ -1,6 +1,6 @@
 import { Context, Hono } from "hono";
 
-import { appInfo } from "../../app-config.js";
+import { appInfo } from "../../config/app-config.js";
 import {
   generateOTP,
   isCustomError,

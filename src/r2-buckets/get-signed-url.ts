@@ -1,6 +1,6 @@
 import { GetObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { getSingletonCacheInstance } from "../local-cache.js";
+import { getSingletonCacheInstance } from "../utils/local-cache.js";
 import { Bindings } from "../types.js";
 import { getR2Client } from "./r2-client.js";
 

@@ -1,4 +1,4 @@
-import { appInfo } from "../../app-config.js";
+import { appInfo } from "../../config/app-config.js";
 import { FAQItem, purchasedPlansInf } from "../../types.js";
 import { Plan } from "./billingsdk-config.js";
 

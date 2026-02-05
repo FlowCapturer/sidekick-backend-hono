@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { appInfo } from "../app-config.js";
+import { appInfo } from "../config/app-config.js";
 import { verifyToken } from "../utils/common-utils.js";
 import logger from "../utils/error-logger.js";
 import {
@@ -77,13 +77,6 @@ const middleWare = createMiddleware<IHonoAppBinding>(async (c, next) => {
 
     return sendErrorResponse(c, commonError);
   }
-});
-
-routes.get("/", (c) => {
-  return c.json({
-    title: `${appInfo.appName} API Portal`,
-    message: `Welcome to the ${appInfo.appName} API portal!`,
-  });
 });
 
 // login does not requires for below APIs

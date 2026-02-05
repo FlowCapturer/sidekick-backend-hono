@@ -1,5 +1,5 @@
 import { Context, Hono } from "hono";
-import { appInfo } from "../../app-config.js";
+import { appInfo } from "../../config/app-config.js";
 import { IHonoAppBinding } from "../../types.js";
 import { isValidId } from "../../utils/common-utils.js";
 import { INVITATION_ENUMS } from "../../utils/enums.js";

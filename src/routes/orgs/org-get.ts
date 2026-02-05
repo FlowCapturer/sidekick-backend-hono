@@ -1,5 +1,5 @@
 import { Context } from "hono";
-import { APP_INFO_ACCOUNT_TYPE, appInfo } from "../../app-config.js";
+import { APP_INFO_ACCOUNT_TYPE, appInfo } from "../../config/app-config.js";
 import { IHonoAppBinding } from "../../types.js";
 import { isValidId } from "../../utils/common-utils.js";
 import {

@@ -1,6 +1,9 @@
 // import { Application, Router } from 'express';
 // import { Pool } from 'mysql2/promise';
-import { APP_INFO_ACCOUNT_TYPE } from "./app-config.js";
+import { Context, Hono } from "hono";
+import { APP_INFO_ACCOUNT_TYPE } from "./config/app-config.js";
+import { freePurchasedPlan } from "./routes/paid-plans/subscription-utils.js";
+import { Plan } from "./routes/paid-plans/billingsdk-config.js";
 // import { Plan } from './routes/paid-plans/billingsdk-config.js';
 // import { freePurchasedPlan } from './routes/paid-plans/subscription-utils.js';
 
@@ -46,7 +49,7 @@ export interface JwtConfig {
 /**
  * Custom routes handler - allows users to register additional routes
  */
-// export type CustomRoutesHandler = (app: Application) => void;
+// export type CustomRoutesHandler = (app: Hono) => void;
 // export type CustomPublicRoutesHandler = (router: Router) => void;
 
 export interface purchasedPlansInf {
@@ -136,7 +139,7 @@ export interface SideKickConfig {
 
   /**
    * Optional: Custom routes handler to add additional routes
-   */
+  //  */
   // customRoutes?: CustomRoutesHandler;
   // customRoutesPublic?: CustomRoutesHandler;
 
@@ -150,8 +153,8 @@ export interface SideKickConfig {
   subscriptions: {
     currency: string;
     currencySymbol: string;
-    // freePlan: typeof freePurchasedPlan;
-    // premiumPlans: Plan[];
+    freePlan: typeof freePurchasedPlan;
+    premiumPlans: Plan[];
     faqs: FAQItem[];
   };
 
