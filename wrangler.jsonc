@@ -1,0 +1,38 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "sidekick-backend-hono",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-02-04",
+  "compatibility_flags": ["nodejs_compat"],
+  // "vars": {
+  //   "MY_VAR": "my-variable"
+  // },
+  // "kv_namespaces": [
+  //   {
+  //     "binding": "MY_KV_NAMESPACE",
+  //     "id": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  //   }
+  // ],
+  "r2_buckets": [
+    {
+      "binding": "R2",
+      "bucket_name": "flow-capturer",
+      "preview_bucket_name": "flow-capturer",
+    },
+  ],
+
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "flow-capturer",
+      "database_id": "c3014f45-c8e2-4082-b7a6-4720e685ce93",
+    },
+  ],
+  // "ai": {
+  //   "binding": "AI"
+  // },
+  // "observability": {
+  //   "enabled": true,
+  //   "head_sampling_rate": 1
+  // }
+}

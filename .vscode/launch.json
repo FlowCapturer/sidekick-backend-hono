@@ -1,0 +1,14 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug Hono (Wrangler)",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceRoot}/node_modules/wrangler/bin/wrangler.js",
+      "args": ["dev", "--remote"],
+      "console": "integratedTerminal",
+      "cwd": "${workspaceRoot}"
+    }
+  ]
+}
