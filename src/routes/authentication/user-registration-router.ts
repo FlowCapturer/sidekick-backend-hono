@@ -17,9 +17,9 @@ import {
   updateRecords,
 } from "../../utils/sql-helper.js";
 import { UsersFields } from "../../utils/type.js";
-import { includeUsersInOrg } from "../orgs/org-members.js";
 import { validateUserRequestObj } from "./validator.js";
 import { IHonoAppBinding } from "../../types.js";
+import { includeUsersInOrg } from "../orgs/org-members/org-member-utils.js";
 
 const userRegistrationRouter = new Hono<IHonoAppBinding>();
 
@@ -96,9 +96,10 @@ const processInvitedUsers = async (
   const sql = `SELECT org_id, invited_user_role_id, invited_users_id FROM auth_invited_users_tbl WHERE email = ? AND is_deleted = 0`;
   const invitedUserResult = await executeSql(sql, c, [email]);
 
-  if (invitedUserResult.length <= 0) return [];
+  const succeeded: any[] = [];
+  const errors: any[] = [];
 
-  const succeeded = [];
+  if (invitedUserResult.length <= 0) return { succeeded, errors };
 
   //Add this user in auth_organization_users_tbl
   for (const element of invitedUserResult as any[]) {
@@ -113,15 +114,16 @@ const processInvitedUsers = async (
       ],
     };
 
-    const registeredUsersResult = await includeUsersInOrg(
-      addTeamMembers,
-      userId,
-      c,
-      false,
-    );
-    succeeded.push(registeredUsersResult);
-
     try {
+      const registeredUsersResult = await includeUsersInOrg(
+        addTeamMembers,
+        userId,
+        c,
+        false,
+      );
+
+      succeeded.push(registeredUsersResult);
+
       await updateRecords(
         "auth_invited_users_tbl",
         { is_deleted: 1 },
@@ -129,14 +131,15 @@ const processInvitedUsers = async (
         c,
       );
     } catch (error: any) {
+      errors.push(error);
       logger.error(
-        "Error occurred while deleting the created user from invited list.",
+        `Error while adding user (userId: ${userId}) in organization: ${element.org_id}`,
         error,
       );
     }
   }
 
-  return succeeded;
+  return { succeeded, errors };
 };
 
 userRegistrationRouter.post("/", async (c) => {
@@ -171,7 +174,7 @@ userRegistrationRouter.post("/", async (c) => {
         insertedUser?.insertId ||
         insertedUser?.last_row_id;
 
-      const addedOrgMembers = await processInvitedUsers(
+      const { succeeded: addedOrgMembers, errors } = await processInvitedUsers(
         reqBody.user_email,
         insertedUserId,
         c,
@@ -181,9 +184,10 @@ userRegistrationRouter.post("/", async (c) => {
       return sendSuccessResponse(
         c,
         getResponseObj({
-          message: "User registered successfully.",
+          message: `User has been registered successfully. ${errors.length > 0 ? "But some errors occurred while adding user in organization." : ""}`,
           insertedUserId,
           addedOrgMembers,
+          // errors,
         }),
       );
     } catch (error: any) {

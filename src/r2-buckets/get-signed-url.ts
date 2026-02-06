@@ -8,7 +8,7 @@ let urlLocalCache: any;
 
 export async function getR2SignedFileUrl(env: Bindings, key: string) {
   if (!urlLocalCache) {
-    urlLocalCache = await getSingletonCacheInstance("r2-signed-get-urls", 20);
+    urlLocalCache = getSingletonCacheInstance("r2-signed-get-urls", 20);
   }
 
   const cachedUrl = await urlLocalCache.get(key);

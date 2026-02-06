@@ -12,7 +12,10 @@ import {
 import { setFeatureFlag } from "./routes/feature-flags/feature-flags.js";
 import { updateRolesEnum } from "./utils/enums.js";
 
-export const initSideKick = (config: SideKickConfig) => {
+export const initSideKick = (
+  config: SideKickConfig,
+  app?: Hono<IHonoAppBinding>,
+) => {
   // Set configuration
   setAppConfig(config.appInfo);
   setAccountType(config.accountType || {});
@@ -28,9 +31,9 @@ export const initSideKick = (config: SideKickConfig) => {
   setFeatureFlag(config.featureFlags || {});
   updateRolesEnum(config.rolesEnum || {});
 
-  const honoApp = new Hono<IHonoAppBinding>();
+  const honoApp = app || new Hono<IHonoAppBinding>();
 
-  routes.get("/", (c) => {
+  honoApp.get("/", (c) => {
     return c.json({
       title: `${appInfo.appName} API Portal`,
       message: `Welcome to the ${appInfo.appName} API portal!`,
@@ -53,31 +56,22 @@ export const initSideKick = (config: SideKickConfig) => {
   //   },
   // });
   // expressApp.use(limiter);
-
   // Configure CORS
   // const corsConfiguration = corsConfig(config.cors.allowedOrigins);
-
   // // 404 handler for unmatched routes
   // honoApp.use((req, res, next) => {
   //   const err: any = new Error("Invalid API endpoint.");
   //   next(err);
   // });
-
   // // Error handler (must be last)
   // honoApp.use(errorHandler);
-
   // Initialize socket io (if needed)
   // initSocketIO(httpServer, corsConfiguration);
 
   return honoApp;
 };
 
-export type {
-  SideKickConfig,
-  AppInfo,
-  CorsConfig,
-  JwtConfig,
-} from "./types.js";
+export * from "./types.js";
 export * from "./utils/index.js";
 export * from "./routes/orgs/index.js";
 export * from "./utils/local-cache.js";

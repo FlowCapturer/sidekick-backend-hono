@@ -12,10 +12,7 @@ import {
 import { executeSql, initializeConnection } from "../../utils/sql-helper.js";
 import { IHonoAppBinding } from "../../types.js";
 
-const localSessionCache = await getSingletonCacheInstance(
-  "active-users-cache",
-  100,
-);
+const localSessionCache = getSingletonCacheInstance("active-users-cache", 100);
 
 // Map to track in-flight database queries for users
 const loadingExecuteFor = new Map<number, Promise<any>>();

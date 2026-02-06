@@ -8,7 +8,7 @@ import logger from "../../utils/error-logger.js";
 import { getErrorResponseObj } from "../../utils/response-utils.js";
 import { executeSql, isTruthyValue } from "../../utils/sql-helper.js";
 
-const orgUserCache = await getSingletonCacheInstance("org-users-cache", 100);
+const orgUserCache = getSingletonCacheInstance("org-users-cache", 100);
 export const invalidateOrgUserCacheForUser = async (
   orgId: number | undefined,
   userId: number | undefined,
@@ -88,10 +88,7 @@ export const canWriteOrg = async (
   }
 };
 
-const orgCreatedByCache = await getSingletonCacheInstance(
-  "org-created-by-cache",
-  50,
-);
+const orgCreatedByCache = getSingletonCacheInstance("org-created-by-cache", 50);
 export const getOrgCreatedBy = async (
   orgId: number,
   c: Context<IHonoAppBinding>,
@@ -105,7 +102,7 @@ export const getOrgCreatedBy = async (
     const cacheKey = `org_created_by_${orgId}`;
 
     const cachedValue = await orgCreatedByCache.get(cacheKey);
-    if (isValidId(cachedValue)) {
+    if (isValidId(cachedValue as string)) {
       return cachedValue;
     } else if (cachedValue === -1) {
       logger.error(

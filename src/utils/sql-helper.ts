@@ -51,7 +51,8 @@ export const insertRecords = async (
       .run();
 
     // Check if all records were inserted
-    if (meta.changes !== records.length) {
+    // D1/SQLite returns total changes including triggers, so we should allow changes >= records.length
+    if (meta.changes < records.length) {
       throw new Error(
         `Expected to insert ${records.length} records, but only ${meta.changes} were inserted.`,
       );

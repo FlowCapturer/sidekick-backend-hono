@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { IHonoAppBinding } from "../../types.js";
 import invitationRouter from "./invitation.js";
-import orgMembersRouter from "./org-members.js";
+import orgMembersRouter from "./org-members/org-members.js";
 import orgRegistrationRouter from "./org-registration-router.js";
 
 export {

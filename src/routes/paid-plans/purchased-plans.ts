@@ -13,7 +13,7 @@ import { executeSql, initializeConnection } from "../../utils/sql-helper.js";
 import { freePurchasedPlan } from "./subscription-utils.js";
 
 const purchasedPlansRouter = new Hono<IHonoAppBinding>();
-const purchasedPlansCache = await getSingletonCacheInstance(
+const purchasedPlansCache = getSingletonCacheInstance(
   "purchased-plans-cache",
   100,
 );

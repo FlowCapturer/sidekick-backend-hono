@@ -12,7 +12,7 @@ import {
 import { initializeConnection, insertRecords } from "../../utils/sql-helper.js";
 import { OrganizationFields } from "../../utils/type.js";
 import { validateOrgRequestObj } from "../authentication/validator.js";
-import { includeUsersInOrg } from "./org-members.js";
+import { includeUsersInOrg } from "./org-members/org-member-utils.js";
 
 const insertOrg = async (
   requestObj: Record<string, any>,

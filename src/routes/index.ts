@@ -1,5 +1,4 @@
 import { Hono } from "hono";
-import { appInfo } from "../config/app-config.js";
 import { verifyToken } from "../utils/common-utils.js";
 import logger from "../utils/error-logger.js";
 import {
@@ -18,7 +17,7 @@ import featureFlagsRouter, {
 } from "./feature-flags/feature-flags.js";
 import linkMetadataRouter from "./link-metadata.js";
 import invitationRouter from "./orgs/invitation.js";
-import orgMembersRouter from "./orgs/org-members.js";
+import orgMembersRouter from "./orgs/org-members/org-members.js";
 import orgRegistrationRouter from "./orgs/org-registration-router.js";
 import getSubscriptionConfigRouter from "./paid-plans/get-subscription-config.js";
 import paymentGateWayRouter from "./paid-plans/payment-gateway.js";

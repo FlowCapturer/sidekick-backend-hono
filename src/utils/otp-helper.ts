@@ -82,8 +82,7 @@ export const otpTemplate = (otp: string) => {
     `;
 };
 
-const singletonOTPCache = await getSingletonCacheInstance("otp-cache");
-// export const cachedOTPs: OTPCache = {};
+const singletonOTPCache = getSingletonCacheInstance("otp-cache");
 
 export const setOTPInCache = async (email: string, otp: string) => {
   await singletonOTPCache.set(email, otp, 600);

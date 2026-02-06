@@ -2,7 +2,6 @@
  * Cloudflare Cache API wrapper
  * Works with Hono + Cloudflare Workers
  */
-
 class CacheAPI {
   private cache: Cache;
   private namespace: string;
@@ -13,25 +12,32 @@ class CacheAPI {
   }
 
   private buildRequest(key: string): Request {
-    return new Request(`https://cache.local/${this.namespace}/${key}`);
+    const safeKey = encodeURIComponent(key);
+    return new Request(`https://cache.local/${this.namespace}/${safeKey}`);
   }
 
-  async get<T = any>(key: string): Promise<T | undefined> {
+  async get<T = unknown>(key: string): Promise<T | undefined> {
     const req = this.buildRequest(key);
     const res = await this.cache.match(req);
 
     if (!res) return undefined;
 
-    return await res.json<T>();
+    try {
+      return (await res.json()) as T;
+    } catch {
+      // Corrupted or non-JSON cache entry
+      return undefined;
+    }
   }
 
-  async set(key: string, value: any, ttlSeconds = 60): Promise<void> {
+  async set(key: string, value: unknown, ttlSeconds = 60): Promise<void> {
     const req = this.buildRequest(key);
 
     const res = new Response(JSON.stringify(value), {
       headers: {
         "Content-Type": "application/json",
-        "Cache-Control": `max-age=${ttlSeconds}`,
+        // TTL is best-effort in Cloudflare Cache
+        "Cache-Control": `public, max-age=${ttlSeconds}`,
       },
     });
 
@@ -45,25 +51,16 @@ class CacheAPI {
 
   async has(key: string): Promise<boolean> {
     const req = this.buildRequest(key);
-    const res = await this.cache.match(req);
-    return !!res;
+    return !!(await this.cache.match(req));
   }
-
-  /**
-   * ❌ NOT SUPPORTED by Cache API
-   * These exist in LRU but not here:
-   * - size()
-   * - keys()
-   * - getAllValues()
-   */
 }
 
 const cacheInstances: Record<string, CacheAPI> = {};
 
-export const getSingletonCacheInstance = async (
+export const getSingletonCacheInstance = (
   instanceName: string,
   maxSize?: number,
-): Promise<CacheAPI> => {
+): CacheAPI => {
   if (!cacheInstances[instanceName]) {
     cacheInstances[instanceName] = new CacheAPI(instanceName);
   }

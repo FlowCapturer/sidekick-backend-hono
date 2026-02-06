@@ -12,7 +12,6 @@ import {
 import { executeSql, initializeConnection } from "../../utils/sql-helper.js";
 import { getFeatureFlags } from "../feature-flags/feature-flags.js";
 import { getActivePurchasedPlan } from "../paid-plans/purchased-plans.js";
-// import { getActivePurchasedPlan } from '../paid-plans/purchased-plans.js';
 
 const getAllowedOrgsByUserId = (
   loggedInUserId: number,

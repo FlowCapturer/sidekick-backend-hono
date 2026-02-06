@@ -1,16 +1,20 @@
 {
   "name": "sidekick-backend-hono",
+  "version": "0.1.0",
   "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
   "scripts": {
-    "dev": "wrangler dev --remote",
-    "deploy": "wrangler deploy --minify",
-    "build": "wrangler build",
+    "build": "tsc",
+    "check": "tsc --noEmit",
     "cf-typegen": "wrangler types --env-interface CloudflareBindings"
   },
   "peerDependencies": {
     "@aws-sdk/client-s3": "^3.983.0",
     "@aws-sdk/s3-request-presigner": "^3.983.0",
-    "@types/node": "^25.2.0",
     "axios": "^1.13.4",
     "bcryptjs": "^3.0.3",
     "hono": "^4.11.7",
@@ -18,10 +22,8 @@
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260203.0",
+    "@types/node": "^25.2.0",
+    "typescript": "^5.0.0",
     "wrangler": "^4.4.0"
-  },
-  "dependencies": {
-    "@hono-rate-limiter/cloudflare": "^0.2.2",
-    "hono-rate-limiter": "^0.5.3"
   }
 }
