@@ -1,5 +1,5 @@
 import type { Context } from "hono";
-import type { IHonoAppBinding } from "../../../types";
+import type { IHonoAppBinding } from "../../../types.js";
 import {
   executeSql,
   getErrorResponseObj,
@@ -8,8 +8,9 @@ import {
   sendErrorResponse,
   sendSuccessResponse,
   throwErrorInResponseIfErrorIsNotCustom,
-} from "../../../utils";
-import { checkWriteAccess } from "./org-member-utils";
+} from "../../../utils/index.js";
+import { checkWriteAccess } from "./org-member-utils.js";
+import { appInfo } from "../../../config/app-config.js";
 
 const getOrgMembersByOrgId = (orgId: number, c: Context<IHonoAppBinding>) => {
   const sql = `SELECT
@@ -37,10 +38,13 @@ const getOrgMembers = async (c: Context<IHonoAppBinding>) => {
 
   return await initializeConnection(async () => {
     try {
+      //Step 1: Permission checks - (Only admin can access)
       await checkWriteAccess(orgId, loggedInUserId, c);
 
+      //Step 2: Get the org members
       const orgMembers = (await getOrgMembersByOrgId(orgId, c)) as any[];
 
+      //Step 3: Check if the logged-in user exists in the org
       const loggedInUserExists = orgMembers.some(
         (rec) => rec.user_id === loggedInUserId,
       );
@@ -50,14 +54,13 @@ const getOrgMembers = async (c: Context<IHonoAppBinding>) => {
           c,
           getErrorResponseObj({
             errorMsg: "You do not have any permissions to access it.",
-            solution: "Access Denied! Contact your Org administrator.",
+            solution: `Access Denied! Contact your ${appInfo.account_type_txt.singular} administrator.`,
           }),
         );
       }
 
-      const sqlUnregisteredUsers = `SELECT invited_users_id, email, invited_user_role_id as role_id, invited_by_user_id, updated_at FROM auth_invited_users_tbl 
-                                    WHERE is_deleted = 0 AND org_id = ${orgId}`;
-
+      const sqlUnregisteredUsers = `SELECT invited_users_id, email, invited_user_role_id as role_id, invited_by_user_id, updated_at 
+                                    FROM auth_invited_users_tbl WHERE is_deleted = 0 AND org_id = ${orgId}`;
       const unregisteredUsers = await executeSql(sqlUnregisteredUsers, c);
 
       return sendSuccessResponse(

@@ -64,6 +64,32 @@ export const insertRecords = async (
   }
 };
 
+export const insertRecordsIgnore = async (
+  tableName: string,
+  records: Record<string, any>[],
+  c: Context<IHonoAppBinding>,
+) => {
+  const keys = Object.keys(records[0]);
+
+  const placeholders = records
+    .map(() => `(${keys.map(() => "?").join(", ")})`)
+    .join(", ");
+
+  const values = records.flatMap((r) => keys.map((k) => r[k]));
+
+  const sql = `
+    INSERT OR IGNORE INTO ${tableName}
+    (${keys.join(", ")})
+    VALUES ${placeholders}
+  `;
+
+  const { meta } = await c.env.DB.prepare(sql)
+    .bind(...values)
+    .run();
+
+  return meta; // meta.changes === inserted rows
+};
+
 /**
  * Updates records in the specified table that match the where condition.
  * @param tableName - The name of the table to update

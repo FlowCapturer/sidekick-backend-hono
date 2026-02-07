@@ -1,20 +1,13 @@
 import type { Context } from "hono";
-import type { IHonoAppBinding } from "../../../types";
+import type { IHonoAppBinding } from "../../../types.js";
 import {
-  getErrorResponseObj,
-  getResponseObj,
   initializeConnection,
-  IOrgMemberIsActiveSql,
-  IOrgMemberIsAdminSql,
-  IOrgMemberUpdateReq,
-  isValidId,
   ROLES,
   sendSuccessResponse,
   throwErrorInResponseIfErrorIsNotCustom,
-  updateRecords,
-} from "../../../utils";
-import { appInfo } from "../../../config/app-config";
-import { updateOrgMembersInOrg } from "./org-member-utils";
+} from "../../../utils/index.js";
+import { appInfo } from "../../../config/app-config.js";
+import { updateOrgMembersInOrg } from "./org-member-utils.js";
 
 const editUsersInOrg = async (c: Context<IHonoAppBinding>) => {
   const body = await c.req.json();
@@ -32,7 +25,7 @@ const editUsersInOrg = async (c: Context<IHonoAppBinding>) => {
   });
 
   const requestObj = {
-    users: body.users,
+    needToUpdateRecords: body.users,
     orgId: body.org_id,
     loggedInUserId: user?.id,
   };

@@ -1,10 +1,9 @@
 import type { Context } from "hono";
-import type { IHonoAppBinding } from "../../../types";
-import { canWriteOrg, invalidateOrgUserCacheForUser } from "../org-utils";
+import type { IHonoAppBinding } from "../../../types.js";
+import { canWriteOrg, invalidateOrgUserCacheForUser } from "../org-utils.js";
 import {
   executeSql,
   getErrorResponseObj,
-  getRequestFromRoute,
   getResponseObj,
   insertRecords,
   INVITATION_ENUMS,
@@ -15,8 +14,8 @@ import {
   ROLES,
   throwErrorInResponseIfErrorIsNotCustom,
   updateRecords,
-} from "../../../utils";
-import { appInfo } from "../../../config/app-config";
+} from "../../../utils/index.js";
+import { appInfo } from "../../../config/app-config.js";
 
 export const checkWriteAccess = async (
   orgId: number,
@@ -45,9 +44,14 @@ export const updateOrgMembersInOrg = async (
   formatResponse: FormatResponseFn,
   c: Context<IHonoAppBinding>,
 ) => {
-  const { users, orgId, loggedInUserId } = requestObj;
+  const { needToUpdateRecords, orgId, loggedInUserId } = requestObj;
 
-  if (!Array.isArray(users) || !isValidId(orgId) || users.length <= 0) {
+  //Step 1: Validate the request
+  if (
+    !Array.isArray(needToUpdateRecords) ||
+    !isValidId(orgId) ||
+    needToUpdateRecords.length <= 0
+  ) {
     throw getErrorResponseObj({
       errorMsg: `Invalid user IDs or ${appInfo.account_type_txt.singular} ID.`,
       solution: `Please provide a valid list of user IDs and ${appInfo.account_type_txt.singular} ID.`,
@@ -62,13 +66,14 @@ export const updateOrgMembersInOrg = async (
   }
 
   try {
-    // permission checks
+    //Step 2: Permission checks
     await checkWriteAccess(orgId, loggedInUserId, c);
 
     const result = [];
     let someFailed = false;
 
-    for (const user of users) {
+    //Step 3: Update the records
+    for (const user of needToUpdateRecords) {
       const whereClause = {
         user_id: user.user_id,
         org_id: orgId,
@@ -90,11 +95,16 @@ export const updateOrgMembersInOrg = async (
           whereClause,
           c,
         );
+
         const success = responseObj.changes > 0;
-        await invalidateOrgUserCacheForUser(
-          whereClause.org_id,
-          whereClause.user_id,
-        );
+
+        //Step 4: Invalidate the cache for the updated user
+        if (success) {
+          await invalidateOrgUserCacheForUser(
+            whereClause.org_id,
+            whereClause.user_id,
+          );
+        }
 
         result.push({
           success,
@@ -124,17 +134,23 @@ export const updateOrgMembersInOrg = async (
 };
 
 export const includeUsersInOrg = async (
-  requestObj: Record<string, unknown>,
+  requestObj: {
+    included_users: Array<{
+      user_id: number;
+      role_id: number;
+      user_opinion?: number;
+    }>;
+    org_id: number;
+  },
   loggedInUserId: number,
   c: Context<IHonoAppBinding>,
   addPermissionCheck: boolean = true,
 ) => {
-  const fields: Array<string> = ["included_users", "org_id"];
-  const reqBody = getRequestFromRoute(requestObj, fields);
-  const { included_users: users, org_id: orgId } = reqBody;
+  const { included_users: includeUsers, org_id: orgId } = requestObj;
 
   try {
-    if (!Array.isArray(users) || !isValidId(orgId)) {
+    //Step 1: Validate the request
+    if (!Array.isArray(includeUsers) || !isValidId(orgId)) {
       throw getErrorResponseObj({
         errorMsg: `Invalid user IDs or ${appInfo.account_type_txt.singular} ID.`,
         solution: `Please provide a valid list of user IDs and ${appInfo.account_type_txt.singular} ID.`,
@@ -148,15 +164,17 @@ export const includeUsersInOrg = async (
       });
     }
 
+    //Step 2: Permission check
     if (addPermissionCheck) await checkWriteAccess(orgId, loggedInUserId, c);
 
-    const records = users.map(({ user_id, role_id, user_opinion }) => {
+    //Step 3: Prepare the records
+    const records = includeUsers.map(({ user_id, role_id, user_opinion }) => {
       return {
         org_id: orgId,
         user_id,
         org_user_role_id: role_id,
         user_opinion:
-          user_opinion >= 0
+          user_opinion && user_opinion >= 0
             ? user_opinion
             : user_id === loggedInUserId
               ? INVITATION_ENUMS.ACCEPTED
@@ -164,14 +182,25 @@ export const includeUsersInOrg = async (
       };
     });
 
-    const userIds = users.map((rec) => rec.user_id).join(",");
+    //Step 4: Get all user IDs to be included
+    const userIds = includeUsers.map((rec) => rec.user_id).join(",");
 
+    /**
+     * Biz Rule:
+     * Here, first checking from includeUsers, if they are already in list,
+     * then just updating their new roleId and make them active,
+     *      their opinion will be updated in different calls as per their action(ACCEPTED, REJECTED, INVITED)
+     * else, just adding them to the list.
+     */
+
+    //Step 5: Get the earlier org members
     const sql = `SELECT org_user_is_active as is_active, org_user_role_id, user_id FROM auth_organization_users_tbl 
                  WHERE org_id = ${orgId} AND user_id IN (${userIds});`;
 
     const earlierOrgMembersRaw = (await executeSql(sql, c)) as any[];
     const earlierOrgMemberIds = earlierOrgMembersRaw.map((rec) => rec.user_id);
 
+    //Step 6: Update the org member opinions, if they are in earlierOrgMemberIds
     let updatedRecords;
     if (earlierOrgMemberIds && earlierOrgMemberIds.length > 0) {
       const needToUpdateRecords = records.filter((rec) =>
@@ -179,7 +208,7 @@ export const includeUsersInOrg = async (
       );
 
       const requestObjUpdate = {
-        users: needToUpdateRecords,
+        needToUpdateRecords,
         orgId: orgId,
         loggedInUserId,
       };
@@ -195,12 +224,14 @@ export const includeUsersInOrg = async (
         role_id: "org_user_role_id" in req ? req.org_user_role_id : ROLES.READ,
       });
 
+      //Update new user opinions and make them active
       const updatedRecordsRes = (await updateOrgMembersInOrg(
         requestObjUpdate,
         getReqData,
         formatResponse,
         c,
       )) as any;
+
       if (updatedRecordsRes.success) {
         const { result: updateResults } = updatedRecordsRes.response;
 
@@ -210,11 +241,14 @@ export const includeUsersInOrg = async (
       }
     }
 
+    //Step 7: Insert the new org members
     const needToInsertRecords = records.filter(
       (rec) => !earlierOrgMemberIds.includes(rec.user_id),
     );
+
     let insertedRecords;
     if (needToInsertRecords && needToInsertRecords.length > 0) {
+      //Insert new org members
       await insertRecords(
         "auth_organization_users_tbl",
         needToInsertRecords,
@@ -222,6 +256,8 @@ export const includeUsersInOrg = async (
       );
       insertedRecords = needToInsertRecords;
 
+      //Invalidate the cache for new org members only,
+      //because in case of update, that logic is written in: updateOrgMembersInOrg
       for (const rec of needToInsertRecords) {
         await invalidateOrgUserCacheForUser(rec.org_id, rec.user_id);
       }

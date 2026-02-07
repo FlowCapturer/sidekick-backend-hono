@@ -1,15 +1,15 @@
 import type { Context } from "hono";
-import type { IHonoAppBinding } from "../../../types";
+import type { IHonoAppBinding } from "../../../types.js";
 import {
   initializeConnection,
   INVITATION_ENUMS,
   ROLES,
   sendSuccessResponse,
   throwErrorInResponseIfErrorIsNotCustom,
-} from "../../../utils";
-import { getOrgCreatedBy } from "../org-utils";
-import { updateOrgMembersInOrg } from "./org-member-utils";
-import { appInfo } from "../../../config/app-config";
+} from "../../../utils/index.js";
+import { getOrgCreatedBy } from "../org-utils.js";
+import { updateOrgMembersInOrg } from "./org-member-utils.js";
+import { appInfo } from "../../../config/app-config.js";
 
 const deleteUsersInOrg = async (c: Context<IHonoAppBinding>) => {
   const body = await c.req.json();
@@ -18,7 +18,7 @@ const deleteUsersInOrg = async (c: Context<IHonoAppBinding>) => {
   return await initializeConnection(async () => {
     try {
       const requestObj = {
-        users: body.users,
+        needToUpdateRecords: body.users,
         orgId: body.org_id,
         loggedInUserId: parseInt(user?.id, 10),
       };
@@ -29,6 +29,7 @@ const deleteUsersInOrg = async (c: Context<IHonoAppBinding>) => {
       )) as number;
       const getReqData = (user: any) => {
         if (user?.user_id === orgCreatedBy) {
+          //Not allowing to delete the org created by own user
           return false;
         }
 

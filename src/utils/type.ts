@@ -1,4 +1,4 @@
-import { INVITATION_ENUMS } from './enums.js';
+import { INVITATION_ENUMS } from "./enums.js";
 
 export interface UsersFields {
   user_email?: string;
@@ -57,7 +57,7 @@ export interface IOrgMemberReq {
 }
 
 export interface IOrgMemberUpdateReq {
-  users: IOrgMemberReq[];
+  needToUpdateRecords: IOrgMemberReq[];
   orgId: number;
   loggedInUserId: number;
 }

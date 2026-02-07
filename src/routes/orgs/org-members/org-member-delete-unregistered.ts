@@ -1,5 +1,5 @@
 import type { Context } from "hono";
-import type { IHonoAppBinding } from "../../../types";
+import type { IHonoAppBinding } from "../../../types.js";
 import {
   getErrorResponseObj,
   getResponseObj,
@@ -8,8 +8,8 @@ import {
   sendSuccessResponse,
   throwErrorInResponseIfErrorIsNotCustom,
   updateRecords,
-} from "../../../utils";
-import { checkWriteAccess } from "./org-member-utils";
+} from "../../../utils/index.js";
+import { checkWriteAccess } from "./org-member-utils.js";
 
 const deleteUnregisteredUserInvitation = async (
   c: Context<IHonoAppBinding>,
