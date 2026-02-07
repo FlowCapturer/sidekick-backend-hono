@@ -13,7 +13,7 @@ import {
   logger,
   sendSuccessResponse,
   throwErrorInResponseIfErrorIsNotCustom,
-} from "../../../utils";
+} from "../../../utils/index.js";
 import { checkWriteAccess, includeUsersInOrg } from "./org-member-utils.js";
 import { checkCanAllowToIncludeUsersInOrg } from "../premium-org-utils.js";
 import { appInfo } from "../../../config/app-config.js";
