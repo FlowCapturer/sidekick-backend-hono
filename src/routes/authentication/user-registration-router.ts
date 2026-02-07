@@ -156,7 +156,7 @@ userRegistrationRouter.post("/", async (c) => {
    */
   const reqBody = await c.req.json();
 
-  if ((await validateOTP(reqBody.user_email, reqBody.otp)) === false) {
+  if ((await validateOTP(c.env, reqBody.user_email, reqBody.otp)) === false) {
     const responseError = getErrorResponseObj({
       errorMsg: "Invalid OTP.",
       solution: "Enter correct OTP and try again.",
@@ -180,7 +180,7 @@ userRegistrationRouter.post("/", async (c) => {
         c,
       );
 
-      await clearOTPFromCache(reqBody.user_email);
+      await clearOTPFromCache(c.env, reqBody.user_email);
       return sendSuccessResponse(
         c,
         getResponseObj({

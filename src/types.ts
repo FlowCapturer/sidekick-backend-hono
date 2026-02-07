@@ -180,6 +180,8 @@ export type Bindings = {
   R2_ACCESS_KEY: string;
   R2_SECRET_KEY: string;
   R2_BUCKET: string;
+  UPSTASH_REDIS_REST_URL: string;
+  UPSTASH_REDIS_REST_TOKEN: string;
 };
 
 export type Variables = {

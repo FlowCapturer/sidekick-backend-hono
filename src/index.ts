@@ -30,7 +30,6 @@ export const initSideKick = (
   // setSecret(config.secretConfig || {});
   setFeatureFlag(config.featureFlags || {});
   updateRolesEnum(config.rolesEnum || {});
-
   const honoApp = app || new Hono<IHonoAppBinding>();
 
   honoApp.get("/", (c) => {

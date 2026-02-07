@@ -1,5 +1,7 @@
+import { Bindings } from "../types";
 import { appInfo } from "../config/app-config.js";
-import { getSingletonCacheInstance } from "./local-cache.js";
+import { delRedisValue, getRedisValue, setRedisValue } from "./cache-redis.js";
+// import { getSingletonCacheInstance } from "./local-cache.js";
 
 export const otpTemplate = (otp: string) => {
   return `
@@ -82,21 +84,30 @@ export const otpTemplate = (otp: string) => {
     `;
 };
 
-const singletonOTPCache = getSingletonCacheInstance("otp-cache");
+// const singletonOTPCache = getSingletonCacheInstance("otp-cache");
 
-export const setOTPInCache = async (email: string, otp: string) => {
-  await singletonOTPCache.set(email, otp, 600);
+export const setOTPInCache = async (
+  env: Bindings,
+  email: string,
+  otp: string,
+) => {
+  // await singletonOTPCache.set(email, otp, 600);
+  await setRedisValue(env, email, otp, 600);
 };
 
-export const validateOTP = async (email: string, otp: string) => {
-  const cachedOTP = await singletonOTPCache.get(email);
+export const validateOTP = async (
+  env: Bindings,
+  email: string,
+  otp: string,
+) => {
+  const cachedOTP = await getRedisValue(env, email);
   if (cachedOTP === undefined) {
     return false;
   }
 
-  return cachedOTP === otp;
+  return Number(cachedOTP) === Number(otp);
 };
 
-export const clearOTPFromCache = async (email: string) => {
-  await singletonOTPCache.del(email);
+export const clearOTPFromCache = async (env: Bindings, email: string) => {
+  await delRedisValue(env, email);
 };

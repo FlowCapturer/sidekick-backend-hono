@@ -16,14 +16,14 @@ class CacheAPI {
     return new Request(`https://cache.local/${this.namespace}/${safeKey}`);
   }
 
-  async get<T = unknown>(key: string): Promise<T | undefined> {
+  async get(key: string): Promise<unknown> {
     const req = this.buildRequest(key);
     const res = await this.cache.match(req);
 
     if (!res) return undefined;
 
     try {
-      return (await res.json()) as T;
+      return res.json();
     } catch {
       // Corrupted or non-JSON cache entry
       return undefined;

@@ -95,7 +95,7 @@ sendOTPRouterRouter.post("/:path", async (c) => {
     }
 
     const otp = generateOTP();
-    await setOTPInCache(email, otp);
+    await setOTPInCache(c.env, email, otp);
 
     await sendEmail({
       email,

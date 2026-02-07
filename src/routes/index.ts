@@ -5,6 +5,7 @@ import {
   getErrorResponseObj,
   sendErrorResponse,
 } from "../utils/response-utils.js";
+import { loggerMiddleware } from "../utils/logger-middleware.js";
 import checkSessionRouter from "./authentication/check-session.js";
 import loginRouter from "./authentication/login-router.js";
 import resetPasswordRouter from "./authentication/reset-password.js";
@@ -26,6 +27,8 @@ import { IHonoAppBinding } from "../types.js";
 import { createMiddleware } from "hono/factory";
 
 const routes = new Hono<IHonoAppBinding>();
+
+routes.use(loggerMiddleware);
 
 const middleWare = createMiddleware<IHonoAppBinding>(async (c, next) => {
   const api = (c.req.header("api") || "").toString();

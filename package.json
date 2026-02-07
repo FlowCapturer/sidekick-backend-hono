@@ -18,7 +18,8 @@
     "axios": "^1.13.4",
     "bcryptjs": "^3.0.3",
     "hono": "^4.11.7",
-    "razorpay": "^2.9.6"
+    "razorpay": "^2.9.6",
+    "@upstash/redis": "^1.36.2"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260203.0",

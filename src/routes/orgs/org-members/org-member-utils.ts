@@ -11,6 +11,7 @@ import {
   IOrgMemberIsAdminSql,
   IOrgMemberUpdateReq,
   isValidId,
+  logger,
   ROLES,
   throwErrorInResponseIfErrorIsNotCustom,
   updateRecords,
@@ -113,6 +114,10 @@ export const updateOrgMembersInOrg = async (
         });
       } catch (error: any) {
         someFailed = true;
+        logger.error(
+          `Error while updating team member details for orgId=${orgId}, loggedInUserId=${loggedInUserId}, error: `,
+          error,
+        );
         result.push({
           success: false,
           changedFor: whereClause,
