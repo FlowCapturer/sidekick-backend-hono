@@ -23,12 +23,13 @@ export interface AppInfo {
   logo?: string;
   primaryThemeColor?: string;
   CLIENT_URL: string;
-  supportEmail: string;
+  SUPPORT_EMAIL: string;
   account_type_txt: {
     singular: string;
     plural: string;
     value: typeof APP_INFO_ACCOUNT_TYPE.TEAM;
   };
+  UNIVERSAL_SERVER_URL?: string; // For sending emails or other universal server needs
 }
 
 /**
