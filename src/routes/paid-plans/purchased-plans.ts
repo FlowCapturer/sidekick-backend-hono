@@ -191,10 +191,8 @@ export const getPurchasedPlans = async (
     // Check cache first
     const cachedPurchasedPlans = await purchasedPlansCache.get(cacheKey);
     if (cachedPurchasedPlans) {
-      console.log("Using cached purchased plans");
       return cachedPurchasedPlans;
     }
-    console.log("Fetching purchased plans from database");
 
     // Check if there's already a query in progress for this user
     let plansPromise = loadingPurchasedPlansFor.get(userId);

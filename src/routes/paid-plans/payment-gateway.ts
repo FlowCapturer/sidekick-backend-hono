@@ -196,6 +196,9 @@ paymentGateWayRouter.post("/create-order", async (c) => {
     try {
       const user = c.get("user");
       userId = user?.id;
+
+      logger.info(`Initiating order creation for userId: ${userId}`);
+
       const {
         planId,
         billingPeriod,
@@ -252,8 +255,6 @@ paymentGateWayRouter.post("/create-order", async (c) => {
         c,
       );
 
-      console.log("transactionRecSqlResponse", transactionRecSqlResponse);
-
       const purchasePlanRec = {
         for_months: billingPeriod === "yearly" ? 12 : 1,
         for_no_users,
@@ -276,6 +277,8 @@ paymentGateWayRouter.post("/create-order", async (c) => {
         [purchasePlanRec],
         c,
       );
+
+      logger.info(`Successfully created order for userId: ${userId}`);
 
       return sendSuccessResponse(
         c,
@@ -309,6 +312,11 @@ paymentGateWayRouter.post("/add-more-users-order", async (c) => {
     try {
       const user = c.get("user");
       userId = user?.id;
+
+      logger.info(
+        `Initiating add more users order creation for userId: ${userId}`,
+      );
+
       const { purchased_id, for_no_users, currency } = await c.req.json();
 
       if (!isValidId(purchased_id)) {
@@ -401,6 +409,10 @@ paymentGateWayRouter.post("/add-more-users-order", async (c) => {
         c,
       );
 
+      logger.info(
+        `Successfully created add more users order for userId: ${userId}`,
+      );
+
       return sendSuccessResponse(
         c,
         getResponseObj({
@@ -430,6 +442,17 @@ paymentGateWayRouter.post("/verify-payment", async (c) => {
   return await initializeConnection(async () => {
     const { orderId, razorpayPaymentId, razorpaySignature } =
       await c.req.json();
+
+    if (!orderId || !razorpayPaymentId || !razorpaySignature) {
+      throw getErrorResponseObj({
+        errorMsg: "Invalid payment verification request.",
+        solution:
+          "Please try again later or contact support if the issue persists.",
+      });
+    }
+
+    logger.info(`Initiating payment verification for orderId: ${orderId}`);
+
     try {
       const generatedSignature = crypto
         .createHmac("sha256", c.env.RAZORPAY_KEY_SECRET || "")
@@ -490,6 +513,8 @@ paymentGateWayRouter.post("/verify-payment", async (c) => {
           error,
         );
       }
+
+      logger.info(`Successfully verified payment for orderId: ${orderId}`);
 
       return sendSuccessResponse(
         c,

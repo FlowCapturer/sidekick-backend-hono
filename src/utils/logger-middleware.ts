@@ -12,6 +12,8 @@ export const loggerMiddleware = async (c: Context, next: Next) => {
 
   const logLevel = status >= 500 ? "error" : status >= 400 ? "warn" : "info";
 
+  if (logLevel === "info") return; // Skip logging for successful requests to reduce noise
+
   const user = c.get("user");
   const userLog = user
     ? { userId: user.id || user.userId, userEmail: user.email }
