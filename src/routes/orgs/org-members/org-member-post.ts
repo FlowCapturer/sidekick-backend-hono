@@ -128,6 +128,7 @@ const sendInvitationEmail = async (
         isUserHaveAnAccount,
       });
 
+      //here the send email will not going to impact the response.
       try {
         //Step 5: Send email
         await sendEmail({

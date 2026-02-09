@@ -20,6 +20,8 @@ import {
   invalidatePurchasedPlansCacheForUser,
 } from "./purchased-plans.js";
 import { CURRENCY, plans } from "./subscription-utils.js";
+import { appInfo } from "../../config/app-config.js";
+import sendEmail from "../../utils/email-helper.js";
 
 const paymentGateWayRouter = new Hono<IHonoAppBinding>();
 let razorpayInstance: Razorpay;
@@ -497,6 +499,7 @@ paymentGateWayRouter.post("/verify-payment", async (c) => {
         const razorpayInst = getRazorPayInstance(c);
         const paymentDetails =
           await razorpayInst.payments.fetch(razorpayPaymentId);
+
         const paymentMethod = paymentDetails?.method || "unknown";
         await updateRecords(
           "b_transactions",
@@ -515,6 +518,30 @@ paymentGateWayRouter.post("/verify-payment", async (c) => {
       }
 
       logger.info(`Successfully verified payment for orderId: ${orderId}`);
+
+      try {
+        const user = c.get("user");
+
+        const emailTpl = getSuccessEmailHtml({
+          email: user.email,
+          orderId,
+          paymentId: razorpayPaymentId,
+        });
+
+        // Send success email to user
+        c.executionCtx.waitUntil(
+          sendEmail({
+            email: user.email,
+            subject: "Your payment was successful!",
+            html: emailTpl,
+          }),
+        );
+      } catch (error: any) {
+        logger.error(
+          `Error while sending payment success email for orderId: ${orderId}`,
+          error,
+        );
+      }
 
       return sendSuccessResponse(
         c,
@@ -577,5 +604,117 @@ paymentGateWayRouter.post("/log-failure", async (c) => {
     }
   });
 });
+
+const getSuccessEmailHtml = ({
+  email,
+  orderId,
+  paymentId,
+}: {
+  email: string;
+  orderId: string;
+  paymentId: string;
+}) => {
+  return `<!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+            <title>Thank You for Your Purchase</title>
+          </head>
+          <body style="margin:0; padding:0; background-color:#f4f6f8; font-family: Arial, Helvetica, sans-serif;">
+
+            <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f6f8; padding:20px;">
+              <tr>
+                <td align="center">
+
+                  <!-- Main Container -->
+                  <table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px; background-color:#ffffff; border-radius:8px; overflow:hidden;">
+
+                    <!-- Header -->
+                    <tr>
+                      <td style="background-color:${appInfo.primaryThemeColor}; padding:24px; text-align:center;">
+                        <h1 style="margin:0; color:#ffffff; font-size:24px;">
+                          ${appInfo.appName}
+                        </h1>
+                        <p style="margin:6px 0 0; color:#ffffff; font-size:14px;">
+                          ${appInfo.appDescription}
+                        </p>
+                      </td>
+                    </tr>
+
+                    <!-- Body -->
+                    <tr>
+                      <td style="padding:32px; color:#111827;">
+
+                        <h2 style="margin-top:0; font-size:22px;">
+                          🎉 Thanks for upgrading to Premium!
+                        </h2>
+
+                        <p style="font-size:15px; line-height:1.6;">
+                          Hi <strong>${email}</strong>,
+                        </p>
+
+                        <p style="font-size:15px; line-height:1.6;">
+                          Thank you for purchasing the <strong>Premium subscription</strong> of
+                          <strong>${appInfo.appName}</strong>. We're excited to have you onboard!
+                        </p>
+
+                        <!-- Info Box -->
+                        <table width="100%" cellpadding="0" cellspacing="0" style="margin:20px 0; background-color:#f1f5f9; border-radius:6px;">
+                          <tr>
+                            <td style="padding:16px;">
+                              <p style="margin:0; font-size:14px;">
+                              <strong>Order Id:</strong> ${orderId}<br />
+                              <strong>Payment Id:</strong> ${paymentId}
+                              </p>
+                            </td>
+                          </tr>
+                        </table>
+
+                        <p style="font-size:15px; line-height:1.6;">
+                          If you want to see the details of your subscription or manage it, visit <a href="${appInfo.CLIENT_URL}/infrastructure/manage-subscription" target="_blank" style="color:${appInfo.primaryThemeColor}; text-decoration:none;">Manage Subscription</a>.
+                        </p>
+
+                        <!-- CTA Button -->
+                        <table cellpadding="0" cellspacing="0" style="margin:30px auto;">
+                          <tr>
+                            <td align="center" style="background-color:${appInfo.primaryThemeColor}; border-radius:6px;">
+                              <a href="${appInfo.CLIENT_URL}" target="_blank"
+                                style="display:inline-block; padding:14px 26px; color:#ffffff; text-decoration:none; font-size:15px; font-weight:bold;">
+                                Go to Dashboard
+                              </a>
+                            </td>
+                          </tr>
+                        </table>
+
+                        <p style="font-size:14px; line-height:1.6; color:#374151;">
+                          You can now enjoy all the premium features and take your experience to the next level. 
+                          If you have any questions or need assistance, feel free to reach out to our support team at <a href="mailto:${appInfo.SUPPORT_EMAIL}" style="color:${appInfo.primaryThemeColor}; text-decoration:none;">${appInfo.SUPPORT_EMAIL}</a>.
+                        </p>
+
+                        <p style="font-size:14px; margin-bottom:0;">
+                          Cheers,<br />
+                          <strong>The ${appInfo.appName} Team</strong>
+                        </p>
+
+                      </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                      <td style="background-color:#f8fafc; padding:16px; text-align:center; font-size:12px; color:#6b7280;">
+                        ${new Date().getFullYear()} ${appInfo.appName}. All rights reserved.
+                      </td>
+                    </tr>
+
+                  </table>
+                </td>
+              </tr>
+            </table>
+
+          </body>
+          </html>
+          `;
+};
 
 export default paymentGateWayRouter;
