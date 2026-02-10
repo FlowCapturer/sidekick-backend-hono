@@ -149,145 +149,141 @@ export const getInvitationEmailTpl = ({
   const loginUrl = `${appInfo.CLIENT_URL}/login`;
 
   return `<!DOCTYPE html>
-            <html>
-              <head>
-                <meta charset="UTF-8" />
-                <title>${appInfo.appName} - ${appInfo.account_type_txt.singular} Invitation</title>
-                <style>
-                  body {
-                    font-family: Arial, sans-serif;
-                    background-color: #f5f7fa;
-                    margin: 0;
-                    padding: 0;
-                  }
-                  .container {
-                    width: 100%;
-                    max-width: 480px;
-                    margin: 30px auto;
-                    background-color: #ffffff;
-                    border-radius: 8px;
-                    padding: 20px;
-                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-                    color: #333333;
-                  }
-                  .header {
-                    font-size: 24px;
-                    font-weight: bold;
-                    color: ${appInfo.primaryThemeColor};
-                    margin-bottom: 20px;
-                    justify-content: center;
-                    display: flex;
-                    gap: 5px;
-                  }
-                  .content p {
-                    font-size: 16px;
-                    line-height: 1.5;
-                  }
-                  .org-name {
-                    font-weight: bold;
-                    color: ${appInfo.primaryThemeColor};
-                  }
-                  .button-container {
-                    text-align: center;
-                    margin: 30px 0;
-                  }
-                  .accept-button {
-                    display: inline-block;
-                    padding: 14px 32px;
-                    font-size: 16px;
-                    font-weight: bold;
-                    color: #ffffff;
-                    background-color: ${appInfo.primaryThemeColor};
-                    text-decoration: none;
-                    border-radius: 6px;
-                    transition: background-color 0.3s;
-                  }
-                  .accept-button:hover {
-                    opacity: 0.9;
-                  }
-                  .link-section {
-                    margin: 20px 0;
-                    padding: 15px;
-                    background-color: #f9fafb;
-                    border-radius: 6px;
-                    border-left: 4px solid ${appInfo.primaryThemeColor};
-                  }
-                  .link-section p {
-                    margin: 5px 0;
-                    font-size: 14px;
-                  }
-                  .link-url {
-                    color: ${appInfo.primaryThemeColor};
-                    word-break: break-all;
-                    font-size: 13px;
-                  }
-                  .footer {
-                    font-size: 14px;
-                    color: #777777;
-                    text-align: center;
-                    margin-top: 30px;
-                  }
-                  .divider {
-                    height: 1px;
-                    background-color: #e5e7eb;
-                    margin: 20px 0;
-                  }
-                </style>
-              </head>
-              <body>
-                <div class="container">
-                  <div class="header">
-                    <div>${appInfo.logo}</div>
-                    <div style="margin-top: 0">${appInfo.appName}</div>
-                  </div>
-                  <div class="content">
-                    <p>Hello ${invitedTo_UserName},</p>
-                    <p>
-                      You've been invited to join 
-                      <span class="org-name">${organizationName}</span> on ${appInfo.appName}.
-                    </p>
-                    <p>
-                      ${inviterName} has invited you to collaborate and access this ${appInfo.account_type_txt.singular.toLocaleLowerCase()}.
-                    </p>
-                    
-                    <div class="button-container">
-                      <a href="${acceptInvitationUrl}" class="accept-button">
-                        View Invitation
-                      </a>
-                    </div>
+            <html lang="en">
+            <head>
+              <meta charset="UTF-8" />
+              <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+              <title>${appInfo.appName} Invitation</title>
+            </head>
 
-                    <p style="font-size: 14px; color: #666666;">
-                      Or copy and paste this link into your browser:
-                    </p>
-                    <div class="link-section">
-                      <p style="font-weight: 600; margin-bottom: 8px;">Accept Invitation Link:</p>
-                      <p class="link-url">${acceptInvitationUrl}</p>
-                    </div>
+            <body style="margin:0; padding:0; background-color:#f4f6f8; font-family:Arial, Helvetica, sans-serif;">
 
-                    <div class="divider"></div>
+              <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f6f8; padding:20px;">
+                <tr>
+                  <td align="center">
 
-                    ${
-                      !isUserHaveAnAccount
-                        ? `<p style="font-size: 14px;">
-                            It appears you don't have an account with us yet. Please create an account first, and then click on the link above.
-                            <a href="${singUpUrl}" style="color: ${appInfo.primaryThemeColor}; text-decoration: none; font-weight: 600;">
-                              Create account
-                            </a>
-                          </p>`
-                        : `<p style="font-size: 14px;">
-                            You already have an account. Please log in first, and then click the link above.
-                            <a href="${loginUrl}" style="color: ${appInfo.primaryThemeColor}; text-decoration: none; font-weight: 600;">
-                              Login
-                            </a>
-                          </p>`
-                    }
+                    <!-- Main Container -->
+                    <table width="100%" cellpadding="0" cellspacing="0"
+                      style="max-width:600px; background-color:#ffffff; border-radius:8px; overflow:hidden;">
 
-                    <p style="font-size: 14px; color: #666666; margin-top: 20px;">
-                      If you did not expect this invitation, you can safely ignore this email.
-                    </p>
-                  </div>
-                  <div class="footer">${appInfo.appName}</div>
-                </div>
-              </body>
-            </html>`;
+                      <!-- Header -->
+                      <tr>
+                        <td style="background-color:${appInfo.primaryThemeColor}; padding:24px; text-align:center;">
+                          <div style="font-size:22px; font-weight:bold; color:#ffffff;">
+                            ${appInfo.appName}
+                          </div>
+                          <div style="font-size:13px; color:#ffffff; margin-top:6px;">
+                            ${appInfo.account_type_txt.singular} Invitation
+                          </div>
+                        </td>
+                      </tr>
+
+                      <!-- Body -->
+                      <tr>
+                        <td style="padding:32px; color:#111827;">
+
+                          <p style="margin-top:0; font-size:15px; line-height:1.6;">
+                            Hello <strong>${invitedTo_UserName}</strong>,
+                          </p>
+
+                          <p style="font-size:15px; line-height:1.6;">
+                            You've been invited to join
+                            <strong style="color:${appInfo.primaryThemeColor};">
+                              ${organizationName}
+                            </strong>
+                            on <strong>${appInfo.appName}</strong>.
+                          </p>
+
+                          <p style="font-size:15px; line-height:1.6;">
+                            <strong>${inviterName}</strong> has invited you to collaborate and access this
+                            ${appInfo.account_type_txt.singular.toLocaleLowerCase()}.
+                          </p>
+
+                          <!-- CTA Button -->
+                          <table cellpadding="0" cellspacing="0" align="center" style="margin:28px auto;">
+                            <tr>
+                              <td style="background-color:${appInfo.primaryThemeColor}; border-radius:6px;">
+                                <a href="${acceptInvitationUrl}" target="_blank"
+                                  style="display:inline-block; padding:14px 32px; color:#ffffff; text-decoration:none; font-size:15px; font-weight:bold;">
+                                  View Invitation
+                                </a>
+                              </td>
+                            </tr>
+                          </table>
+
+                          <p style="font-size:14px; color:#374151;">
+                            Or copy and paste this link into your browser:
+                          </p>
+
+                          <!-- Link Box -->
+                          <table width="100%" cellpadding="0" cellspacing="0"
+                            style="margin:16px 0; background-color:#f9fafb; border-left:4px solid ${appInfo.primaryThemeColor};">
+                            <tr>
+                              <td style="padding:14px;">
+                                <p style="margin:0 0 6px; font-size:14px; font-weight:bold;">
+                                  Accept Invitation Link:
+                                </p>
+                                <p style="margin:0; font-size:13px; color:${appInfo.primaryThemeColor}; word-break:break-all;">
+                                  ${acceptInvitationUrl}
+                                </p>
+                              </td>
+                            </tr>
+                          </table>
+
+                          <!-- Divider -->
+                          <table width="100%" cellpadding="0" cellspacing="0" style="margin:24px 0;">
+                            <tr>
+                              <td style="height:1px; background-color:#e5e7eb;"></td>
+                            </tr>
+                          </table>
+
+                          ${
+                            !isUserHaveAnAccount
+                              ? `<p style="font-size:14px; line-height:1.6;">
+                                  It appears you don't have an account with us yet.
+                                  Please create an account first, then click the invitation link above.
+                                  <br /><br />
+                                  <a href="${singUpUrl}" target="_blank"
+                                    style="color:${appInfo.primaryThemeColor}; text-decoration:none; font-weight:bold;">
+                                    Create account
+                                  </a>
+                                </p>`
+                              : `<p style="font-size:14px; line-height:1.6;">
+                                  You already have an account.
+                                  Please log in first, then click the invitation link above.
+                                  <br /><br />
+                                  <a href="${loginUrl}" target="_blank"
+                                    style="color:${appInfo.primaryThemeColor}; text-decoration:none; font-weight:bold;">
+                                    Login
+                                  </a>
+                                </p>`
+                          }
+
+                          <p style="font-size:14px; color:#6b7280; margin-top:20px;">
+                            If you did not expect this invitation, you can safely ignore this email.
+                          </p>
+
+                          <p style="font-size:14px; margin-bottom:0;">
+                            Regards,<br />
+                            <strong>${appInfo.appName} Team</strong>
+                          </p>
+
+                        </td>
+                      </tr>
+
+                      <!-- Footer -->
+                      <tr>
+                        <td style="background-color:#f8fafc; padding:16px; text-align:center; font-size:12px; color:#6b7280;">
+                          © ${new Date().getFullYear()} ${appInfo.appName}. All rights reserved.
+                        </td>
+                      </tr>
+
+                    </table>
+                  </td>
+                </tr>
+              </table>
+
+            </body>
+            </html>
+`;
 };
