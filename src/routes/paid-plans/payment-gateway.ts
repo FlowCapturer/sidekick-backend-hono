@@ -22,6 +22,7 @@ import {
 import { CURRENCY, plans } from "./subscription-utils.js";
 import { appInfo } from "../../config/app-config.js";
 import sendEmail from "../../utils/email-helper.js";
+import { getFeatureFlags } from "../feature-flags/feature-flags.js";
 
 const paymentGateWayRouter = new Hono<IHonoAppBinding>();
 let razorpayInstance: Razorpay;
@@ -520,21 +521,8 @@ paymentGateWayRouter.post("/verify-payment", async (c) => {
       logger.info(`Successfully verified payment for orderId: ${orderId}`);
 
       try {
-        const user = c.get("user");
-
-        const emailTpl = getSuccessEmailHtml({
-          email: user.email,
-          orderId,
-          paymentId: razorpayPaymentId,
-        });
-
-        // Send success email to user
         c.executionCtx.waitUntil(
-          sendEmail({
-            email: user.email,
-            subject: "Your payment was successful!",
-            html: emailTpl,
-          }),
+          sendPaymentSuccessEmail(c, orderId, razorpayPaymentId),
         );
       } catch (error: any) {
         logger.error(
@@ -604,6 +592,32 @@ paymentGateWayRouter.post("/log-failure", async (c) => {
     }
   });
 });
+
+const sendPaymentSuccessEmail = async (
+  c: Context<IHonoAppBinding>,
+  orderId: string,
+  razorpayPaymentId: string,
+) => {
+  if (getFeatureFlags().ff_enable_email_related_features === false) {
+    logger.info("Email related features are disabled.");
+    return;
+  }
+
+  const user = c.get("user");
+
+  const emailTpl = getSuccessEmailHtml({
+    email: user.email,
+    orderId,
+    paymentId: razorpayPaymentId,
+  });
+
+  // Send success email to user
+  sendEmail({
+    email: user.email,
+    subject: "Your payment was successful!",
+    html: emailTpl,
+  });
+};
 
 const getSuccessEmailHtml = ({
   email,

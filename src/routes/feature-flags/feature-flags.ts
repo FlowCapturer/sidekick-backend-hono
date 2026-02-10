@@ -10,6 +10,7 @@ import { IHonoAppBinding } from "../../types.js";
 const featureFlags = {
   ff_enable_paid_subscription: true,
   ff_enable_teams: true,
+  ff_enable_email_related_features: true,
 };
 
 export const setFeatureFlag = (flags: any): void => {

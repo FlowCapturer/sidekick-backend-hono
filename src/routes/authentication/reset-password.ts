@@ -11,11 +11,13 @@ import {
   getResponseObj,
   sendErrorResponse,
   sendSuccessResponse,
+  throwErrorInResponseIfErrorIsNotCustom,
 } from "../../utils/response-utils.js";
 import { initializeConnection, updateRecords } from "../../utils/sql-helper.js";
 import { UsersFields } from "../../utils/type.js";
 import { validatePassword } from "./validator.js";
 import { IHonoAppBinding } from "../../types.js";
+import { getFeatureFlags } from "../feature-flags/feature-flags.js";
 
 const resetPasswordRouter = new Hono<IHonoAppBinding>();
 
@@ -64,6 +66,13 @@ const updateUser = async (
       c,
     );
 
+    if (result.changes === 0) {
+      throw getErrorResponseObj({
+        errorMsg: "No user found with the provided email.",
+        solution: "Please check the email and try again.",
+      });
+    }
+
     // Here means success
     return result;
   } catch (error: any) {
@@ -82,7 +91,9 @@ const updateUser = async (
       responseError = error;
     }
 
-    throw getErrorResponseObj(responseError, error);
+    throw isCustomError(error)
+      ? error
+      : getErrorResponseObj(responseError, error);
   }
 };
 
@@ -97,7 +108,10 @@ resetPasswordRouter.put("/", async (c) => {
    */
   const reqBody = await c.req.json();
 
-  if ((await validateOTP(c.env, reqBody.user_email, reqBody.otp)) === false) {
+  if (
+    getFeatureFlags().ff_enable_email_related_features &&
+    (await validateOTP(c.env, reqBody.user_email, reqBody.otp)) === false
+  ) {
     const responseError = getErrorResponseObj({
       errorMsg: "Invalid OTP.",
       solution: "Enter correct OTP and try again.",
@@ -110,7 +124,10 @@ resetPasswordRouter.put("/", async (c) => {
     try {
       await updateUser(reqBody, c);
 
-      await clearOTPFromCache(c.env, reqBody.user_email);
+      if (getFeatureFlags().ff_enable_email_related_features) {
+        await clearOTPFromCache(c.env, reqBody.user_email);
+      }
+
       return sendSuccessResponse(
         c,
         getResponseObj({
@@ -118,15 +135,11 @@ resetPasswordRouter.put("/", async (c) => {
         }),
       );
     } catch (error: any) {
-      const responseError = isCustomError(error)
-        ? error
-        : getErrorResponseObj({
-            errorMsg: `An error occurred while password reset.`,
-            solution:
-              "Please try again later or contact support if the issue persists.",
-          });
-
-      return sendErrorResponse(c, responseError);
+      return throwErrorInResponseIfErrorIsNotCustom(c, error, {
+        errorMsg: `An error occurred while password reset.`,
+        solution:
+          "Please try again later or contact support if the issue persists.",
+      });
     }
   });
 });

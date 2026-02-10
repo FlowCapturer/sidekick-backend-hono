@@ -16,6 +16,7 @@ import {
 } from "../../utils/response-utils.js";
 import { initializeConnection, selectRecords } from "../../utils/sql-helper.js";
 import { IHonoAppBinding } from "../../types.js";
+import { getFeatureFlags } from "../feature-flags/feature-flags.js";
 
 const sendOTPRouterRouter = new Hono<IHonoAppBinding>();
 
@@ -62,6 +63,16 @@ sendOTPRouterRouter.post("/:path", async (c) => {
       getErrorResponseObj({
         errorMsg: "Email is invalid.",
         solution: "Please recheck you email and try again.",
+      }),
+    );
+  }
+
+  if (getFeatureFlags().ff_enable_email_related_features === false) {
+    return sendSuccessResponse(
+      c,
+      getResponseObj({
+        message: "Email related features are disabled.",
+        email,
       }),
     );
   }

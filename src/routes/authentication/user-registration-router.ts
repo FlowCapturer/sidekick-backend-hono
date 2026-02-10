@@ -20,6 +20,7 @@ import { UsersFields } from "../../utils/type.js";
 import { validateUserRequestObj } from "./validator.js";
 import { IHonoAppBinding } from "../../types.js";
 import { includeUsersInOrg } from "../orgs/org-members/org-member-utils.js";
+import { getFeatureFlags } from "../feature-flags/feature-flags.js";
 
 const userRegistrationRouter = new Hono<IHonoAppBinding>();
 
@@ -156,7 +157,10 @@ userRegistrationRouter.post("/", async (c) => {
    */
   const reqBody = await c.req.json();
 
-  if ((await validateOTP(c.env, reqBody.user_email, reqBody.otp)) === false) {
+  if (
+    getFeatureFlags().ff_enable_email_related_features &&
+    (await validateOTP(c.env, reqBody.user_email, reqBody.otp)) === false
+  ) {
     const responseError = getErrorResponseObj({
       errorMsg: "Invalid OTP.",
       solution: "Enter correct OTP and try again.",
@@ -180,7 +184,10 @@ userRegistrationRouter.post("/", async (c) => {
         c,
       );
 
-      await clearOTPFromCache(c.env, reqBody.user_email);
+      if (getFeatureFlags().ff_enable_email_related_features) {
+        await clearOTPFromCache(c.env, reqBody.user_email);
+      }
+
       return sendSuccessResponse(
         c,
         getResponseObj({

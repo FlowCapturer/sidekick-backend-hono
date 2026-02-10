@@ -19,6 +19,7 @@ import { checkCanAllowToIncludeUsersInOrg } from "../premium-org-utils.js";
 import { appInfo } from "../../../config/app-config.js";
 import { getInvitationEmailTpl } from "../org-utils.js";
 import sendEmail from "../../../utils/email-helper.js";
+import { getFeatureFlags } from "../../feature-flags/feature-flags.js";
 
 const addUsersInInvitedUsersTbl = async (
   unregisteredUsers: IUnregisteredUsers[],
@@ -62,6 +63,11 @@ const sendInvitationEmail = async (
   invitationTo_orgId: number,
   c: Context<IHonoAppBinding>,
 ) => {
+  if (getFeatureFlags().ff_enable_email_related_features === false) {
+    logger.info("Email related features are disabled.");
+    return;
+  }
+
   //Step 1: Validate inputs
   if (
     !emails ||
