@@ -612,7 +612,7 @@ const sendPaymentSuccessEmail = async (
   });
 
   // Send success email to user
-  sendEmail({
+  return sendEmail({
     email: user.email,
     subject: "Your payment was successful!",
     html: emailTpl,
