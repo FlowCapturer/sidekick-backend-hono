@@ -59,10 +59,11 @@ initSideKick(
 
 #### Create database
 Add this in `wrangler.jsonc`
+Note: Make binding excat to `DB`
 ```txt
   "d1_databases": [
     {
-      "binding": "MY_DB",
+      "binding": "DB",
       "database_name": "db_name",
       "database_id": "",
     },
