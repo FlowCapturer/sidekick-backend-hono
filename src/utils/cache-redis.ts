@@ -3,7 +3,7 @@ import { Bindings } from "../types";
 
 let redis: Redis | undefined;
 
-function getRedis(env: Bindings): Redis {
+export const getRedis = (env: Bindings): Redis => {
   if (!redis) {
     redis = new Redis({
       url: env.UPSTASH_REDIS_REST_URL,
@@ -11,7 +11,7 @@ function getRedis(env: Bindings): Redis {
     });
   }
   return redis;
-}
+};
 
 export async function getRedisValue<T = unknown>(
   env: Bindings,
