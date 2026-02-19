@@ -29,6 +29,7 @@ interface ISignedUploadUrlParams {
   contentLength: number;
   allowedTypes?: string[];
   maxSizeMb?: number;
+  expiresIn?: number;
 }
 
 export async function getR2SignedUploadUrl({
@@ -38,6 +39,7 @@ export async function getR2SignedUploadUrl({
   contentLength,
   allowedTypes = ALLOWED_TYPES,
   maxSizeMb = MAX_SIZE_MB,
+  expiresIn = 300,
 }: ISignedUploadUrlParams) {
   if (!allowedTypes.includes(contentType)) {
     throw new Error("Invalid image type");
@@ -54,6 +56,6 @@ export async function getR2SignedUploadUrl({
   });
 
   return getSignedUrl(getR2Client(env), command, {
-    expiresIn: 300, // 5 minutes
+    expiresIn, // 5 minutes
   });
 }

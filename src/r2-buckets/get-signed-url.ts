@@ -6,7 +6,11 @@ import { getR2Client } from "./r2-client.js";
 
 let urlLocalCache: any;
 
-export async function getR2SignedFileUrl(env: Bindings, key: string) {
+export async function getR2SignedFileUrl(
+  env: Bindings,
+  key: string,
+  expiresIn = 300,
+): Promise<string> {
   if (!urlLocalCache) {
     urlLocalCache = getSingletonCacheInstance("r2-signed-get-urls", 20);
   }
@@ -22,9 +26,9 @@ export async function getR2SignedFileUrl(env: Bindings, key: string) {
   });
 
   const signedUrl = await getSignedUrl(getR2Client(env), command, {
-    expiresIn: 300,
+    expiresIn,
   });
 
-  await urlLocalCache.set(key, signedUrl, 300); // 300 seconds
+  await urlLocalCache.set(key, signedUrl, expiresIn); // Use the expiresIn parameter for cache expiration
   return signedUrl;
 }
