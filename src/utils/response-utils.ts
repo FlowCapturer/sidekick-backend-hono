@@ -13,13 +13,26 @@ export const getErrorResponseObj = (
   errorMsgs: ErrorMsgs,
   error?: object,
 ): ErrorResponse => {
+  let errorMeta: Record<string, any> = {};
+  if (error instanceof Error) {
+    const { name, message, stack, ...rest } = error as any;
+    errorMeta = {
+      name,
+      message,
+      stack,
+      ...rest,
+    };
+  } else {
+    errorMeta = { ...(error || {}) };
+  }
+
   return {
     success: false,
     error: {
       errorMsg: errorMsgs.errorMsg || "",
       solution: errorMsgs.solution || "",
       error: {
-        ...(error || {}),
+        ...(errorMeta || {}),
       },
     },
   };
