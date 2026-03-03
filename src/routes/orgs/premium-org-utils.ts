@@ -57,6 +57,22 @@ const countOrgMembersByOrgCreatedByUserId = async (
   }
 };
 
+const getActivePlanForOrg = async (
+  orgId: number,
+  c: Context<IHonoAppBinding>,
+) => {
+  //Step 1: Get the org created by user id
+  const orgCreatedByUserId = (await getOrgCreatedBy(orgId, c)) as number;
+
+  //Step 2: Get the active purchased plan for the org created by user
+  const activePurchasedPlan = (await getActivePurchasedPlan(
+    orgCreatedByUserId,
+    c,
+  )) as purchasedPlansInf;
+
+  return activePurchasedPlan;
+};
+
 const canAllowToIncludeUsersInOrg = async (
   orgId: number,
   newUsersCount: number,
@@ -110,4 +126,4 @@ const checkCanAllowToIncludeUsersInOrg = async (
   }
 };
 
-export { checkCanAllowToIncludeUsersInOrg };
+export { checkCanAllowToIncludeUsersInOrg, getActivePlanForOrg };

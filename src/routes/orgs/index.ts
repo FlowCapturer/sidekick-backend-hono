@@ -10,6 +10,8 @@ export {
   isOrgUserActive,
 } from "./org-utils.js";
 
+export { getActivePlanForOrg } from "./premium-org-utils.js";
+
 const orgsRouter = new Hono<IHonoAppBinding>();
 
 orgsRouter.route("/", orgRegistrationRouter);
