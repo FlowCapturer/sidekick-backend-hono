@@ -9,7 +9,7 @@ This repository provides all the essential setup required to kick-start any appl
 
 
 ## Installation
-Add this in your package.json file:
+Add this in your package.json file (dependencies):
 ```txt
 "sidekick-backend-hono": "git@github.com:FlowCapturer/sidekick-backend-hono.git"
 ```
