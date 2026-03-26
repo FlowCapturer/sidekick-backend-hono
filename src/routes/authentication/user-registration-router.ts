@@ -93,6 +93,10 @@ const processInvitedUsers = async (
   userId: number,
   c: Context<IHonoAppBinding>,
 ) => {
+  if (!getFeatureFlags().ff_enable_teams) {
+    return { succeeded: [], errors: [] };
+  }
+
   //now checking this email is exist in our auth_invited_users_tbl table.
   const sql = `SELECT org_id, invited_user_role_id, invited_users_id FROM auth_invited_users_tbl WHERE email = ? AND is_deleted = 0`;
   const invitedUserResult = await executeSql(sql, c, [email]);
