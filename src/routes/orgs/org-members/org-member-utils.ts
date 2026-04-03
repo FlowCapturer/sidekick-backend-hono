@@ -104,6 +104,7 @@ export const updateOrgMembersInOrg = async (
           await invalidateOrgUserCacheForUser(
             whereClause.org_id,
             whereClause.user_id,
+            c,
           );
         }
 
@@ -264,7 +265,7 @@ export const includeUsersInOrg = async (
       //Invalidate the cache for new org members only,
       //because in case of update, that logic is written in: updateOrgMembersInOrg
       for (const rec of needToInsertRecords) {
-        await invalidateOrgUserCacheForUser(rec.org_id, rec.user_id);
+        await invalidateOrgUserCacheForUser(rec.org_id, rec.user_id, c);
       }
     }
 

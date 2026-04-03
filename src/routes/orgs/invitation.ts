@@ -120,6 +120,7 @@ invitationRouter.put("/", async (c: Context<IHonoAppBinding>) => {
       await invalidateOrgUserCacheForUser(
         whereClause.org_id,
         whereClause.user_id,
+        c,
       );
 
       if (success) {
