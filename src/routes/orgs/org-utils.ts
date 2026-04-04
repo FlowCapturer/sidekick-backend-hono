@@ -7,23 +7,18 @@ import { INVITATION_ENUMS, ROLES } from "../../utils/enums.js";
 import logger from "../../utils/error-logger.js";
 import { getErrorResponseObj } from "../../utils/response-utils.js";
 import { executeSql, isTruthyValue } from "../../utils/sql-helper.js";
-import {
-  delRedisValue,
-  getRedisValue,
-  setRedisValue,
-} from "../../utils/cache-redis.js";
 
+const orgUserCache = getSingletonCacheInstance("org-users-cache", 100);
 export const invalidateOrgUserCacheForUser = async (
   orgId: number | undefined,
   userId: number | undefined,
-  c: Context<IHonoAppBinding>,
 ) => {
   if (!orgId || !userId || !isValidId(orgId) || !isValidId(userId)) {
     return;
   }
 
   const cacheKey = `auth_organization_users_tbl_${orgId}_${userId}`;
-  await delRedisValue(c.env, cacheKey); //orgUserCache.del(cacheKey);
+  await orgUserCache.del(cacheKey);
 };
 
 export const getOrgUserRecord = async (
@@ -41,17 +36,16 @@ export const getOrgUserRecord = async (
 
     const cacheKey = `auth_organization_users_tbl_${orgId}_${userId}`;
 
-    const cachedValue = await getRedisValue(c.env, cacheKey); //orgUserCache.get(cacheKey);
-    if (cachedValue) {
-      if (cachedValue === -1) return null;
+    const cachedValue = await orgUserCache.get(cacheKey);
+    if (cachedValue !== undefined) {
       return cachedValue;
     }
 
     const sql = `SELECT org_user_role_id, user_opinion, org_user_is_active FROM auth_organization_users_tbl WHERE org_id = ${orgId} AND user_id = ${userId};`;
     const allowedOrgs = (await executeSql(sql, c)) as any[];
-    const result = allowedOrgs[0] || -1;
+    const result = allowedOrgs[0] || null;
 
-    await setRedisValue(c.env, cacheKey, result, 60 * 60 * 24 * 7); // orgUserCache.set(cacheKey, result);
+    await orgUserCache.set(cacheKey, result);
 
     return result;
   } catch (error: any) {
