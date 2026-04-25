@@ -72,8 +72,7 @@ Note: Make binding excat to `DB`
 
 Run:
 ```txt
-mkdir migrations
-npx wrangler d1 migrations apply db_name --local
+npx wrangler d1 execute <DATBASE_NAME> --local --file=./sql/schema.sql
 ```
 You will see the SQLite db file created in 
 ```txt
