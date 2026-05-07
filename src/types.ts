@@ -183,6 +183,8 @@ export type Bindings = {
   R2_BUCKET: string;
   UPSTASH_REDIS_REST_URL: string;
   UPSTASH_REDIS_REST_TOKEN: string;
+  RESEND_KEY: string;
+  EMAIL_FROM: string;
 };
 
 export type Variables = {

@@ -141,6 +141,7 @@ const sendInvitationEmail = async (
           email,
           subject: `${appInfo.appName} - Invitation to Join ${organizationName}`,
           html: emailTemplate,
+          env: c.env,
         });
       } catch (error: any) {
         logger.error(

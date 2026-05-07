@@ -616,6 +616,7 @@ const sendPaymentSuccessEmail = async (
     email: user.email,
     subject: "Your payment was successful!",
     html: emailTpl,
+    env: c.env,
   });
 };
 

@@ -112,6 +112,7 @@ sendOTPRouterRouter.post("/:path", async (c) => {
       email,
       subject: `${appInfo.appName} - ${subject}`,
       html: otpTemplate(otp),
+      env: c.env,
     });
 
     return sendSuccessResponse(

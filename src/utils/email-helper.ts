@@ -1,32 +1,22 @@
-import axios from "axios";
 import logger from "./error-logger.js";
 import { SendEmailInf } from "./type.js";
-import { appInfo } from "../config/app-config.js";
+import { Resend } from "resend";
 
-const sendEmail = async ({ email, subject, html }: SendEmailInf) => {
-  if (!appInfo.UNIVERSAL_SERVER_URL) {
-    logger.error(
-      `sendEmail called with UNIVERSAL_SERVER_URL: ${appInfo.UNIVERSAL_SERVER_URL}`,
-    );
-    return;
+const sendEmail = async ({ email, subject, html, env, from }: SendEmailInf) => {
+  const resend = new Resend(env.RESEND_KEY);
+
+  const { data, error } = await resend.emails.send({
+    from: from || env.EMAIL_FROM,
+    to: [email],
+    subject,
+    html,
+  });
+
+  if (error) {
+    logger.error("[sendEmail] Resend error:", error);
+    throw new Error(error.message);
   }
 
-  return axios
-    .post(`${appInfo.UNIVERSAL_SERVER_URL}/email`, {
-      to: email,
-      subject,
-      html,
-    })
-    .then((response) => {
-      logger.info(
-        `Email sent successfully to ${email}. Response: ${response.data}`,
-      );
-      return response.data;
-    })
-    .catch((error) => {
-      logger.error(`Failed to send email to ${email}. Error: ${error.message}`);
-      throw error;
-    });
+  return data;
 };
-
 export default sendEmail;

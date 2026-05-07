@@ -1,3 +1,4 @@
+import { IHonoAppBinding } from "../types.js";
 import { INVITATION_ENUMS } from "./enums.js";
 
 export interface UsersFields {
@@ -40,6 +41,8 @@ export interface SendEmailInf {
   email: string;
   subject: string;
   html: string;
+  env: IHonoAppBinding["Bindings"];
+  from?: string;
 }
 
 export interface OTPCache {
